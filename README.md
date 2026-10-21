@@ -11,60 +11,56 @@
 
 ```mermaid
 graph TD
-  Start([Bắt đầu Sprint]) --> Plan[Sprint Backlog: P1 đến P5]
-  Plan --> Blocker{Gặp sự cố OTP ngân hàng}
-  Blocker -- Từ Ngày 1 đến Ngày 3 --> Wait[Đường thực tế đi ngang tại 25 SP]
-  Blocker -- Daily Scrum Ngày 4 --> Action[Scrum Master gỡ vướng & Chuyển sang P2]
-  Action --> P2Done[Cuối Ngày 4: P2 đạt DoD - Giảm 5 SP]
-  P2Done --> P1Done[Cuối Ngày 6: P1 đạt DoD - Giảm 5 SP]
-  P1Done --> P5Done[Cuối Ngày 7: P5 đạt DoD - Giảm 2 SP]
-  P5Done --> P3Done[Cuối Ngày 9: P3 đạt DoD - Giảm 8 SP]
-  P3Done --> P4Done[Cuối Ngày 10: P4 đạt DoD - Về mốc 0 SP]
-  P4Done --> End([Kết thúc Sprint thành công])
+  Start([Bắt đầu Sprint]) --> CalCap[Tính toán Capacity thực tế: 189h]
+  CalCap --> CheckBacklog{Tổng giờ Task = 180h <= 189h?}
+  CheckBacklog -- Đúng: Nhận đủ --> PlanSprint[Cam kết Sprint Backlog và Sprint Goal]
+  CheckBacklog -- Sai: Vượt Capacity --> Refine[Trao đổi PO bỏ bớt hoặc tách PBI]
+  Refine --> PlanSprint
+  PlanSprint --> Exec[Tiến hành thực thi Sprint - Ngày 1 đến 3]
+  Exec --> CheckBlock{Nghẽn OTP từ ngân hàng đối tác?}
+  CheckBlock -- Có: Bị Block --> DailyStandup[Daily Scrum sáng Ngày 4: Báo cáo vướng mắc]
+  DailyStandup --> SMAction[Scrum Master gỡ nghẽn với đối tác & Dev chuyển sang P2]
+  CheckBlock -- Không --> NormalFlow[Tiếp tục Task]
+  SMAction --> AchieveDoD[Các PBI đạt DoD lần lượt: P2, P1, P5, P3, P4]
+  AchieveDoD --> BurndownTrack[Theo dõi điểm SP giảm dần về 0]
+  BurndownTrack --> End([Hoàn thành Sprint])
 ```
 
 ---
 
-## Nhiệm vụ 1: Phân rã User Story thành Task kỹ thuật (P1)
+## Nhiệm vụ 1: Phân rã Task kỹ thuật User Story nạp tiền
 
-Mình tiến hành phân rã User Story 'Là khách hàng, tôi muốn nạp tiền vào ví GoFood qua thẻ tín dụng quốc tế' (5 Story Points) thành các Task kỹ thuật cụ thể. Mỗi Task đều bắt đầu bằng động từ hành động, có đầu ra kiểm chứng được và tổng thời gian ước lượng hoàn toàn đáp ứng Definition of Done (DoD) của đội.
+Tôi tiến hành phân rã User Story 'Là khách hàng, tôi muốn nạp tiền vào ví GoFood qua thẻ tín dụng quốc tế' (5 Story Points) thành các Task kỹ thuật cụ thể. Mỗi Task bắt đầu bằng một động từ mạnh, có đầu ra kiểm chứng được và tuân thủ tuyệt đối Definition of Done (DoD) của đội.
 
-- Thiết kế giao diện nhập thẻ – 4 giờ (Đầu ra: Màn hình UI nhập số thẻ, ngày hết hạn, mã CVV chạy được trên môi trường dev)
-- Viết chức năng nạp tiền phía máy chủ gọi cổng ngân hàng – 8 giờ (Đầu ra: API backend xử lý giao dịch kết nối thành công với Sandbox ngân hàng)
-- Mã hóa thông tin thẻ, không lưu số thẻ – 5 giờ (Đầu ra: Module bảo mật mã hóa dữ liệu nhạy cảm theo chuẩn PCI-DSS)
-- Viết và chạy kiểm thử (nạp thành công, thẻ bị từ chối, quá thời gian chờ) – 6 giờ (Đầu ra: Bộ test cases Automation/Manual đạt 100% các kịch bản kiểm thử)
-- Review code và đưa lên môi trường thử nghiệm – 3 giờ (Đầu ra: Pull Request được đồng nghiệp review approved và deploy thành công lên Staging)
+- Task 1: Thiết kế màn hình nhập thẻ (4 giờ) - Đầu ra kiểm chứng được: Giao diện UI hoàn thiện, hỗ trợ nhập thông tin thẻ, validated các trường dữ liệu cơ bản.
+- Task 2: Viết chức năng nạp tiền phía máy chủ gọi cổng ngân hàng (8 giờ) - Đầu ra kiểm chứng được: API kết nối cổng thanh toán quốc tế hoạt động ổn định, xử lý được mã phản hồi trả về.
+- Task 3: Mã hóa thông tin thẻ, không lưu số thẻ (5 giờ) - Đầu ra kiểm chứng được: Dữ liệu thẻ nhạy cảm được mã hóa chuẩn bảo mật PCI-DSS, không lưu trữ thông tin số thẻ trên cơ sở dữ liệu nội bộ.
+- Task 4: Viết và chạy kiểm thử trường hợp nạp thành công, thẻ bị từ chối, timeout (6 giờ) - Đầu ra kiểm chứng được: Bộ test cases đạt 100% test pass, kiểm thử thành công kịch bản thẻ bị từ chối giao dịch.
+- Task 5: Review code và đưa lên môi trường thử nghiệm (3 giờ) - Đầu ra kiểm chứng được: Code đã được ít nhất một lập trình viên khác review, pull request được merge và deploy thành công lên môi trường Staging.
 
 ## Nhiệm vụ 2: Tính toán Capacity thực tế và Đối chiếu Sprint Backlog
 
-Dựa trên thông số nhân sự và thời gian làm việc thực tế của Scrum Team trong Sprint 10 ngày, mình tính toán sức chứa thực tế (Capacity) như sau:
+Để đảm bảo lập kế hoạch sát thực tế, tôi tiến hành tính toán năng lực làm việc thực tế của Scrum Team dựa trên số liệu ngày khả dụng, giờ tập trung, việc cố định và khoảng dự phòng (Buffer).
 
-Tổng giờ tập trung của 4 thành viên (Nam 10 ngày, Thảo 10 ngày, Quân 10 ngày, Hương 7 ngày do nghỉ phép 3 ngày) với định mức 6 giờ/ngày/người: (10 + 10 + 10 + 7) x 6 = 37 x 6 = 222 giờ.
+Công thức áp dụng: Capacity thực tế = Σ(Ngày khả dụng × Giờ tập trung) − Việc cố định − Buffer
 
-Trừ đi thời gian việc cố định (buổi demo với ngân hàng đối tác cả team mất 12 giờ): 222 - 12 = 210 giờ.
-
-Trừ tiếp khoản dự phòng Buffer 10% trên số giờ còn lại: 210 x 10% = 21 giờ.
-
-Sức chứa thực tế (Capacity) của Scrum Team: 210 - 21 = 189 giờ.
-
+- Tổng giờ tập trung của 4 thành viên (Nam: 10, Thảo: 10, Quân: 10, Hương: 7 ngày khả dụng): (10 + 10 + 10 + 7) × 6 = 37 × 6 = 222 giờ.
+- Trừ việc cố định (buổi demo với ngân hàng đối tác cả team mất 12 giờ): 222 - 12 = 210 giờ.
+- Tính khoảng dự phòng Buffer 10% trên số giờ còn lại: 210 × 10% = 21 giờ.
+- Capacity thực tế của Scrum Team: 210 - 21 = 189 giờ.
 - Tổng giờ Task của Sprint Backlog: P1 (26 giờ) + P2 (34 giờ) + P3 (58 giờ) + P4 (44 giờ) + P5 (18 giờ) = 180 giờ.
-- Đối chiếu với Capacity: Tổng giờ Task (180 giờ) <= Capacity thực tế (189 giờ). Do đó, team hoàn toàn tự tin nhận đủ Sprint Backlog.
-- Nguyên tắc Scrum: Không quy đổi Story Point cứng nhắc ra giờ (ví dụ P2 và P4 đều 5 SP nhưng tốn số giờ khác nhau lần lượt là 34 giờ và 44 giờ do độ phức tạp kỹ thuật).
+- Đối chiếu: Tổng giờ Task (180 giờ) <= Capacity thực tế (189 giờ), do đó team hoàn toàn nhận đủ Sprint Backlog mà không sợ bị quá tải. Lưu ý không quy đổi Story Point sang giờ một cách máy móc vì các PBI có độ phức tạp kỹ thuật khác nhau (ví dụ P2 và P4 đều 5 SP nhưng tốn số giờ thực hiện chênh lệch).
 
-## Nhiệm vụ 3: Lập bảng dữ liệu Burndown Chart và Phân tích tiến độ
+## Nhiệm vụ 3: Lập bảng dữ liệu và Phân tích Burndown Chart
 
-Dưới đây là bảng số liệu chi tiết từ Ngày 0 đến Ngày 10 ghi nhận đường lý tưởng (Ideal Line) và đường thực tế (Actual Line) của Sprint:
-
-- Ngày 1 đến Ngày 3 đường thực tế đi ngang ở mốc 25 points: Cảnh báo công việc bị tắc nghẽn nghiêm trọng (Blocker) do lỗi hệ thống OTP từ ngân hàng đối tác.
-- Ngày 5 và Ngày 8 đường thực tế tiếp tục đi ngang dù team vẫn làm việc: Do bản chất Burndown Chart tính theo Story Point chỉ giảm xuống khi một Product Backlog Item (PBI) hoàn thành đạt 100% Definition of Done (DoD), các Task đang làm dở chưa được tính điểm.
-- Đề xuất cho Daily Scrum sáng Ngày 4: Scrum Master cần nhanh chóng phối hợp với bên ngân hàng đối tác để gỡ nghẽn kỹ thuật; trong lúc chờ đợi, Developers nên chuyển hướng sang làm các PBI không bị phụ thuộc vào cổng thẻ (như P2 Xem số dư và lịch sử ví). Nếu có nguy cơ trễ hạn bàn giao, cần thảo luận sớm với Product Owner về việc điều chỉnh phạm vi nhưng tuyệt đối phải giữ vững Sprint Goal.
+Dưới đây là bảng số liệu chi tiết từ Ngày 0 đến Ngày 10 ghi nhận lượng điểm Story Points còn lại theo Đường lý tưởng (Ideal Line) và Đường thực tế (Actual Line).
 
 | Ngày làm việc | Đường lý tưởng (Ideal Line) | Đường thực tế (Actual Line) | Trạng thái ghi chú |
 | --- | --- | --- | --- |
 | Ngày 0 | 25.0 pt | 25 pt | Khởi động Sprint |
 | Ngày 1 | 22.5 pt | 25 pt | Bị nghẽn xác thực OTP của đối tác (đường đi ngang) |
 | Ngày 2 | 20.0 pt | 25 pt | Vẫn bị nghẽn (đường đi ngang) |
-| Ngày 3 | 17.5 pt | 25 pt | Vẫn bị nghẽn, cao hơn đường lý tưởng 7.5 pt |
+| Ngày 3 | 17.5 pt | 25 pt | Vẫn bị nghẽn, cao hơn đường lý tưởng 7,5 pt |
 | Ngày 4 | 15.0 pt | 20 pt | P2 đạt DoD (giảm 5 pt) |
 | Ngày 5 | 12.5 pt | 20 pt | Đang làm dở P1, P3; chưa PBI nào đạt DoD (đi ngang) |
 | Ngày 6 | 10.0 pt | 15 pt | P1 đạt DoD (giảm 5 pt) |
@@ -72,6 +68,14 @@ Dưới đây là bảng số liệu chi tiết từ Ngày 0 đến Ngày 10 ghi
 | Ngày 8 | 5.0 pt | 13 pt | Đang làm dở P3, P4 (đi ngang) |
 | Ngày 9 | 2.5 pt | 5 pt | P3 đạt DoD (giảm 8 pt) |
 | Ngày 10 | 0.0 pt | 0 pt | P4 đạt DoD, hoàn thành toàn bộ Sprint Backlog |
+
+## Phân tích và Đề xuất hành động từ Burndown Chart
+
+Từ biểu đồ Burndown Chart và dữ liệu thực tế diễn ra trong Sprint, tôi rút ra các kết luận kỹ thuật và hướng xử lý sau:
+
+- Hiện tượng đi ngang từ Ngày 1 đến Ngày 3: Đường thực tế đi ngang ở mốc 25 points báo hiệu tình trạng nghẽn hệ thống nghiêm trọng (Blocker) do lỗi xác thực OTP từ phía ngân hàng đối tác, khiến chưa có PBI nào hoàn thành đạt chuẩn DoD.
+- Nguyên nhân ngày 5 và ngày 8 đi ngang: Mặc dù các lập trình viên vẫn làm việc chăm chỉ, nhưng theo nguyên lý Agile Scrum, Burndown Chart tính điểm dựa trên Story Point hoàn thành khi PBI đạt chuẩn DoD. Do các PBI này chưa kết thúc trọn vẹn nên điểm số trên biểu đồ chưa thể sụt giảm.
+- Hành động đề xuất tại Daily Scrum sáng Ngày 4: Scrum Master cần nhanh chóng nắm bắt thông tin, phối hợp với các bên liên quan để gỡ nghẽn cổng kết nối với ngân hàng đối tác. Trong thời gian chờ đợi, các lập trình viên nên tạm gác các Task phụ thuộc API ngân hàng để chuyển sang thực hiện các PBI độc lập (như P2 xem số dư và lịch sử ví). Nếu rủi ro trễ tiến độ kéo dài, team cần ngồi lại trao đổi với Product Owner về việc điều chỉnh phạm vi (scope), nhưng kiên quyết bảo vệ Sprint Goal.
 
 ---
 
